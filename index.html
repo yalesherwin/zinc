@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>钢卷加价计算器 | 锌层・漆膜・耐指纹</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #ffe0ec, #f7f0ff);
+      color: #333;
+    }
+    .container {
+      background: #fff0f5;
+      padding: 5vw;
+      border-radius: 24px;
+      max-width: 700px;
+      margin: 5vh auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border: 4px dashed #ff99cc;
+      position: relative;
+    }
+    h2 {
+      text-align: center;
+      color: #ff66aa;
+      margin-bottom: 6vw;
+      font-size: 6vw;
+      letter-spacing: 1px;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 1vw;
+      display: block;
+      font-size: 4vw;
+      color: #cc3399;
+    }
+    select, input {
+      padding: 3vw;
+      font-size: 4vw;
+      width: 100%;
+      border: 2px solid #ff99cc;
+      border-radius: 12px;
+      margin-bottom: 5vw;
+      box-sizing: border-box;
+      background: #fff8fb;
+      color: #333;
+    }
+    button {
+      padding: 4vw;
+      font-size: 4.5vw;
+      background: #ff66aa;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #ff3399;
+    }
+    .result {
+      margin-top: 6vw;
+      font-size: 4vw;
+      line-height: 1.8;
+      background: #fff0f8;
+      color: #000;
+      padding: 4vw;
+      border-radius: 12px;
+      border: 2px dashed #ff99cc;
+    }
+    .note {
+      margin-top: 5vw;
+      font-size: 3.5vw;
+      color: #996699;
+      text-align: center;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 8vw;
+      font-size: 3.8vw;
+      color: #cc3399;
+    }
+    .mascot {
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 80px;
+      background: url('https://cdn-icons-png.flaticon.com/512/616/616408.png') no-repeat center center;
+      background-size: contain;
+    }
+    .brand {
+      text-align: center;
+      font-size: 5vw;
+      font-weight: bold;
+      color: #ff66aa;
+      margin-bottom: 2vw;
+    }
+    @media (min-width: 768px) {
+      h2 { font-size: 32px; }
+      .brand { font-size: 24px; }
+      label, input, select, button, .result, .note, .footer {
+        font-size: 18px;
+      }
+      input, select, button {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="mascot" title="CHINACNU吉祥物"></div>
+    <div class="brand">CHINACNU STEEL</div>
+    <h2>钢卷加价计算器<br>锌层・漆膜・耐指纹</h2>
+
+    <label for="productType">产品类型 / Product Type</label>
+    <select id="productType" onchange="toggleFields()">
+      <option value="color">彩涂卷 / Color Coated</option>
+      <option value="aluZinc">镀铝锌 / Aluzinc</option>
+      <option value="galvanized">镀锌卷 / Galvanized</option>
+    </select>
+
+    <label for="thickness">厚度 (mm) / Thickness</label>
+    <input type="number" id="thickness" step="0.01" placeholder="例如：0.5">
+
+    <label for="width">宽度 (mm) / Width</label>
+    <input type="number" id="width" step="1" placeholder="例如：1250">
+
+    <div id="coatingWrapper">
+      <label for="coatingCount">您要加的漆膜层数 / Coating Layers to Add</label>
+      <input type="number" id="coatingCount" step="1" min="0" placeholder="例如：2">
+    </div>
+
+    <label for="zincCount">您要加的锌层层数 / Zinc Layers to Add</label>
+    <input type="number" id="zincCount" step="1" min="0" placeholder="例如：1">
+
+    <div id="fingerprintWrapper">
+      <label for="fingerprint">耐指纹类型 / Anti-Fingerprint</label>
+      <select id="fingerprint">
+        <option value="none">无 / None</option>
+        <option value="clear">透明双面 / Clear Double</option>
+        <option value="color">彩色双面 / Color Double</option>
+        <option value="gold">金色双面 / Gold Double</option>
+        <option value="green">单面绿色 / Green Single</option>
+      </select>
+    </div>
+
+    <button onclick="alert('这里是演示按钮，可接入计算逻辑')">✨ 计算加价！</button>
+
+    <div class="result" id="result"></div>
+    <div class="note">
+      📝 根据钢卷类型自动切换可加项，所有附加项目均按面积计算～
+    </div>
+    <div class="footer">
+      💌 WhatsApp: +86 191 5431 6688<br>
+      CHINACNU STEEL 版权所有
+    </div>
+  </div>
+
+  <script>
+    function toggleFields() {
+      const productTypeEl = document.getElementById('productType');
+      const coatingWrapper = document.getElementById('coatingWrapper');
+      const fingerprintWrapper = document.getElementById('fingerprintWrapper');
+
+      if (!productTypeEl || !coatingWrapper || !fingerprintWrapper) return;
+
+      const type = productTypeEl.value;
+      coatingWrapper.style.display = (type === 'color') ? 'block' : 'none';
+      fingerprintWrapper.style.display = (type === 'aluZinc') ? 'block' : 'none';
+    }
+
+    window.onload = toggleFields;
+  </script>
+</body>
+</html>

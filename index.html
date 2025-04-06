@@ -151,7 +151,7 @@
       </select>
     </div>
 
-    <button onclick="alert('这里是演示按钮，可接入计算逻辑')">✨ 计算加价！</button>
+    <button onclick="calculateCost()">✨ 计算加价！</button>
 
     <div class="result" id="result"></div>
     <div class="note">
@@ -174,6 +174,43 @@
       const type = productTypeEl.value;
       coatingWrapper.style.display = (type === 'color') ? 'block' : 'none';
       fingerprintWrapper.style.display = (type === 'aluZinc') ? 'block' : 'none';
+    }
+
+    function calculateCost() {
+      const thickness = parseFloat(document.getElementById('thickness').value) / 1000;
+      const width = parseFloat(document.getElementById('width').value) / 1000;
+      const coatingCount = parseInt(document.getElementById('coatingCount')?.value) || 0;
+      const zincCount = parseInt(document.getElementById('zincCount')?.value) || 0;
+      const fingerprint = document.getElementById('fingerprint')?.value || 'none';
+      const productType = document.getElementById('productType').value;
+
+      if (!thickness || !width) {
+        alert('请输入厚度和宽度');
+        return;
+      }
+
+      const density = 7850; // kg/m³
+      const volumePerTon = 1 / (density / 1000);
+      const areaPerTon = volumePerTon / thickness;
+      const metersPerTon = areaPerTon / width;
+      const coatingCost = (productType === 'color') ? areaPerTon * coatingCount * 0.05 : 0;
+      const zincCost = areaPerTon * zincCount * 0.025;
+
+      let fingerprintCost = 0;
+      if (fingerprint === 'clear') fingerprintCost = areaPerTon * 0.23;
+      if (fingerprint === 'color') fingerprintCost = areaPerTon * 0.33;
+      if (fingerprint === 'gold') fingerprintCost = areaPerTon * 0.41;
+      if (fingerprint === 'green') fingerprintCost = areaPerTon * 0.23;
+
+      const total = coatingCost + zincCost + fingerprintCost;
+
+      document.getElementById('result').innerHTML =
+        `每吨长度约为：<strong>${metersPerTon.toFixed(2)}</strong> 米<br>` +
+        `每吨面积约为：<strong>${areaPerTon.toFixed(2)}</strong> 平方米<br>` +
+        `漆膜加价：<strong>¥${coatingCost.toFixed(2)}</strong><br>` +
+        `锌层加价：<strong>¥${zincCost.toFixed(2)}</strong><br>` +
+        `耐指纹加价：<strong>¥${fingerprintCost.toFixed(2)}</strong><br>` +
+        `✨ 总加价：<strong style="color: #e91e63">¥${total.toFixed(2)}</strong>`;
     }
 
     window.onload = toggleFields;
